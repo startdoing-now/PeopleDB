@@ -4,7 +4,6 @@ import com.tranhuan.peopledb.annotation.Id;
 import com.tranhuan.peopledb.annotation.MultiSQL;
 import com.tranhuan.peopledb.annotation.SQL;
 import com.tranhuan.peopledb.model.CrudOperation;
-import com.tranhuan.peopledb.model.Entity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
-abstract class CRUDRepository<T extends Entity> {
+abstract class CRUDRepository<T> {
     protected Connection connection;
 
     public CRUDRepository(Connection connection) {
