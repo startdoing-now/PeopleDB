@@ -25,7 +25,7 @@ abstract class CRUDRepository<T> {
 
     public T save(T entity) {
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.SAVE, this::getSaveSql), Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.SAVE, this::getSaveSql), Statement.RETURN_GENERATED_KEYS);
             mapForSave(entity, ps);
             int recordAffected = ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
@@ -43,7 +43,7 @@ abstract class CRUDRepository<T> {
     public Optional<T> findById(Long id) {
         T entity = null;
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.FIND_BY_ID, this::getFindByIdSql));
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.FIND_BY_ID, this::getFindByIdSql));
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -58,7 +58,7 @@ abstract class CRUDRepository<T> {
     public List<T> findAll() {
         List<T> entities =new ArrayList<>();
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.FIND_ALL, this::getFindAllSql));
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.FIND_ALL, this::getFindAllSql));
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 entities.add(extractEntityFromResultSets(rs));
@@ -75,7 +75,7 @@ abstract class CRUDRepository<T> {
         long cnt = 0;
 
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.COUNT,this::getCountSql));
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.COUNT,this::getCountSql));
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 cnt = rs.getLong(1);
@@ -88,7 +88,7 @@ abstract class CRUDRepository<T> {
 
     public void delete(T entity) {
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.DELETE_ONE, this::getDeleteSql));
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.DELETE_ONE, this::getDeleteSql));
             ps.setLong(1, getIdByAnnotation(entity));
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -100,7 +100,7 @@ abstract class CRUDRepository<T> {
         try {
             Statement stmt = connection.createStatement();
             String ids = Arrays.stream(entity).map(e -> getIdByAnnotation(e)).map(String::valueOf).collect(joining(","));
-            int affected = stmt.executeUpdate(getSaveSqlByAnnotation(CrudOperation.DELETE_MANY, this::getDeleteInSql).replace(":ids", ids));
+            int affected = stmt.executeUpdate(getSqlByAnnotation(CrudOperation.DELETE_MANY, this::getDeleteInSql).replace(":ids", ids));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +108,7 @@ abstract class CRUDRepository<T> {
 
     public void update(T entity) {
         try {
-            PreparedStatement ps = connection.prepareStatement(getSaveSqlByAnnotation(CrudOperation.UPDATE, this::getUpdateSql));
+            PreparedStatement ps = connection.prepareStatement(getSqlByAnnotation(CrudOperation.UPDATE, this::getUpdateSql));
             mapForUpdate(entity, ps);
             ps.setLong(5, getIdByAnnotation(entity));
             int i = ps.executeUpdate();
@@ -117,7 +117,7 @@ abstract class CRUDRepository<T> {
         }
     }
 
-    String getSaveSqlByAnnotation(CrudOperation operationType, Supplier<String> sqlGetter) {
+    String getSqlByAnnotation(CrudOperation operationType, Supplier<String> sqlGetter) {
         Stream<SQL> multiSqlStream = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(m -> m.isAnnotationPresent(MultiSQL.class))
                 .map(m -> m.getAnnotation(MultiSQL.class))

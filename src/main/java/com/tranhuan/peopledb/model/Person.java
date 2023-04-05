@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Person {
     private String firstName;
@@ -14,6 +15,9 @@ public class Person {
      @Id
      private Long id;
     private BigDecimal salary;
+
+    private String email;
+    private Optional<Address> homeAddress = Optional.empty();
 
     public Person(String firstName, String lastName, ZonedDateTime dob) {
         this.firstName = firstName;
@@ -29,6 +33,13 @@ public class Person {
     public Person(long id, String firstName, String lastName, ZonedDateTime dob, BigDecimal salary) {
         this(id, firstName, lastName, dob);
         this.salary = salary;
+    }
+
+    public Person(String firstName, String lastName, ZonedDateTime dob, Optional<Address> homeAddress) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.homeAddress = homeAddress;
     }
 
     public String getFirstName() {
@@ -74,6 +85,14 @@ public class Person {
         this.salary = salary;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -95,5 +114,13 @@ public class Person {
     @Override
     public int hashCode() {
         return Objects.hash(firstName, lastName, dob, id);
+    }
+
+    public void setHomeAddress(Address homeAddress) {
+        this.homeAddress = Optional.ofNullable(homeAddress);
+    }
+
+    public Optional<Address> getHomeAddress() {
+        return homeAddress;
     }
 }
